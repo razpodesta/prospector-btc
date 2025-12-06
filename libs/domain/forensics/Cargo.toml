@@ -1,0 +1,12 @@
+[package]
+name = "prospector-domain-forensics"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+prospector-core-math = { path = "../../core/math-engine" }
+thiserror = "1.0"
+
+[lib]
+name = "prospector_domain_forensics"
+path = "src/lib.rs"

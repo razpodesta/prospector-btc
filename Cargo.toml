@@ -1,10 +1,17 @@
 [workspace]
 members = [
+    "apps/census-taker",
+    "apps/miner-worker",
+    "apps/orchestrator",
     "libs/core/math-engine",
     "libs/core/generators",
     "libs/core/probabilistic",
     "libs/domain/models-rs",
-    "libs/domain/mining-strategy", 
+    "libs/domain/mining-strategy",
+    "libs/infra/db-turso",
+    "libs/infra/transport",
+	"libs/domain/forensics",
+    "libs/shared/heimdall-rs"
 ]
 
 [profile.release]

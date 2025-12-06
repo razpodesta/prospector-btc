@@ -1,46 +1,81 @@
-# libs/core/math-engine/src/lib.rs
+// libs/core/math-engine/src/lib.rs
 // =================================================================
-// APARATO: CORE MATH ENGINE
-// ESTÁNDARES: RUST 2021, CLIPPY STRICT, SAFE MEMORY
+// PROSPECTOR SYSTEM // APARATO: CORE MATH ENGINE
+// CLASIFICACIÓN: HIGH-PERFORMANCE COMPUTING (HPC)
+// ESTÁNDARES: RUST 2021, NO-PANIC, STRICT TYPES
 // =================================================================
 
-// REGLAS DE SEGURIDAD Y LINTING
-// Prohibimos código inseguro (unsafe) a menos que esté estrictamente auditado.
+// -----------------------------------------------------------------
+// 1. REGLAS DE SEGURIDAD Y RENDIMIENTO (LINTS)
+// -----------------------------------------------------------------
+// Prohibimos código inseguro explícitamente. Dependemos de secp256k1
+// (que usa unsafe internamente) pero nuestra superficie es segura.
 #![deny(unsafe_code)]
-// Forzamos documentación para mantener el estándar doctoral.
+
+// Exigimos documentación para mantener el rigor académico de la Tesis.
 #![warn(missing_docs)]
-// Activamos lints de Clippy para código idiomático y performante.
+
+// Activamos el modo "Pedantic" de Clippy para garantizar código idiomático
+// y de máximo rendimiento (evita clones innecesarios, dereferencias lentas, etc).
 #![warn(clippy::all, clippy::pedantic)]
-#![allow(clippy::module_name_repetitions)]
+#![warn(clippy::nursery)]
+#![warn(clippy::cargo)]
+
+// Excepciones tácticas para ergonomía
+#![allow(clippy::module_name_repetitions)] // MathError es aceptable
+#![allow(clippy::must_use_candidate)]      // No ensuciar APIs fluidas
 
 //! # Core Math Engine
 //!
-//! Este es el núcleo criptográfico de Prospector.
+//! El corazón termodinámico de Prospector.
 //!
-//! ## Responsabilidades:
-//! 1. Wrapper seguro sobre `libsecp256k1`.
-//! 2. Implementación de Hashing específico de Bitcoin (Hash160).
-//! 3. Gestión de tipos base para Claves Privadas y Públicas.
+//! Este crate proporciona abstracciones de **Costo Cero (Zero-Cost Abstractions)**
+//! sobre la criptografía de curva elíptica `secp256k1` y funciones de hash
+//! optimizadas para la arquitectura de Bitcoin.
 //!
-//! ## Rendimiento:
-//! Utiliza bindings C optimizados con ensamblador para la curva elíptica.
+//! ## Optimizaciones de Rendimiento
+//! - **Inline Assembly:** Delega en `libsecp256k1` (C) para operaciones de curva.
+//! - **Stack Allocation:** Evita `Heap` (allocations) en el bucle caliente.
+//! - **Strict Typing:** Wrappers `SafePrivateKey` y `SafePublicKey` garantizan
+//!   invariantes matemáticos en tiempo de compilación.
 
-/// Módulo para operaciones de Hashing (SHA256, RIPEMD160).
+// -----------------------------------------------------------------
+// 2. MÓDULOS DEL MOTOR
+// -----------------------------------------------------------------
+
+/// Operaciones de Hashing Criptográfico (SHA256, RIPEMD160).
+/// Contiene funciones `#[inline(always)]` para fusión de instrucciones.
 pub mod hashing;
 
-/// Módulo para gestión de Claves Privadas.
+/// Gestión de Escalares Secretos (Claves Privadas).
+/// Implementa protección de memoria y generación segura de entropía.
 pub mod private_key;
 
-/// Módulo para gestión de Claves Públicas.
+/// Aritmética de Puntos de Curva (Claves Públicas).
+/// Maneja serialización comprimida (33 bytes) y legacy (65 bytes).
 pub mod public_key;
 
-/// Tipos de error unificados para el módulo matemático.
+/// Catálogo de fallos matemáticos controlados.
 pub mod errors;
+
+// -----------------------------------------------------------------
+// 3. PRELUDE (ERGONOMÍA DE DESARROLLO)
+// -----------------------------------------------------------------
+
+/// Re-exportación de los tipos más usados para facilitar la integración.
+/// Uso: `use prospector_core_math::prelude::*;`
+pub mod prelude {
+    pub use crate::hashing::{double_sha256, hash160};
+    pub use crate::private_key::SafePrivateKey;
+    pub use crate::public_key::SafePublicKey;
+    pub use crate::errors::MathError;
+}
 
 #[cfg(test)]
 mod tests {
     #[test]
-    fn it_works() {
+    fn core_sanity_check() {
+        // Verificación básica de que el sistema de tipos compila y linkea
         assert_eq!(2 + 2, 4);
     }
 }

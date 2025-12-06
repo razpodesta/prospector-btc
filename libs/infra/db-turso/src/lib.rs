@@ -1,0 +1,12 @@
+// libs/infra/db-turso/src/lib.rs
+// =================================================================
+// APARATO: INFRA DB (TURSO ADAPTER)
+// =================================================================
+
+pub mod client;
+pub mod repositories;
+pub mod errors;
+pub mod schema; // Script de inicialización
+
+// Re-exports para facilitar el uso
+pub use client::TursoClient;

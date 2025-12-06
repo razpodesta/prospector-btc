@@ -1,0 +1,24 @@
+# libs/infra/db-turso/Cargo.toml
+[package]
+name = "prospector-infra-db"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Driver oficial de Turso/libSQL
+libsql = { version = "0.3", features = ["serde"] }
+
+# Modelos de Dominio (Para mapear filas a objetos)
+prospector-domain-models = { path = "../../domain/models-rs" }
+
+# Utilidades
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+uuid = { version = "1.0", features = ["v4"] }
+async-trait = "0.1"
+anyhow = "1.0"
+
+[lib]
+name = "prospector_infra_db"
+path = "src/lib.rs"

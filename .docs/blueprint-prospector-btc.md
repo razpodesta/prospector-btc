@@ -1,6 +1,8 @@
 iamenefeterazt@gmail.com
 GENESIS: https://aistudio.google.com/app/prompts/1CiUSQiVhJlsoQ01O_HAPEquOm57g7iB5
 
+https://www.cockroachlabs.com/pricing/
+
 TÍTULO DE LA TESIS (Propuesta Formal)
 "PROSPECTOR: Evaluación de la Resistencia a Colisiones en la Curva Elíptica Secp256k1 mediante Arquitecturas Distribuidas Efímeras y Arqueología de Entropía Defectuosa"
 ÍNDICE MAESTRO Y GUÍA DE DESARROLLO

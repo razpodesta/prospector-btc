@@ -1,17 +1,12 @@
-# libs/domain/mining-strategy/src/lib.rs
+// libs/domain/mining-strategy/src/lib.rs
 // =================================================================
 // APARATO: MINING STRATEGY
-// ESTÁNDARES: RUST 2021
+// MISION: Generación de candidatos de alta velocidad
 // =================================================================
 
-//! # Mining Strategy
-//!
-//! Implementa los iteradores y generadores que ejecutan la búsqueda
-//! real basándose en la configuración recibida.
-
 pub mod brainwallet;
-// pub mod sequential; // (Futuro)
-// pub mod random;     // (Futuro)
+pub mod combinatoric; // <--- NUEVO MOTOR
 
-// Re-exportamos para facilitar uso
+// Re-exports
 pub use brainwallet::BrainwalletIterator;
+pub use combinatoric::CombinatoricIterator;

@@ -22,7 +22,7 @@ O **PROSPECTOR BTC** não é uma ferramenta de força bruta comum; ele é um **A
 
 A segurança da rede Bitcoin baseia-se na impossibilidade termodinâmica de varrer o espaço de chaves de $2^{256}$. No entanto, essa premissa matemática só se sustenta se a geração de entropia for perfeitamente uniforme. Evidências históricas sugerem que chaves geradas por humanos ("Brainwallets") e PRNGs defeituosos (Debian 2008, Android 2013) criaram **aglomerados densos de vulnerabilidade**.
 
-Este projeto implementa a arquitetura **"Hydra-Zero"**: um sistema distribuído de alto desempenho e custo zero, projetado para mapear e auditar esses setores de vulnerabilidade utilizando recursos efêmeros de nuvem.
+Este projeto implementa a arquitetura **"PROSPECTOR BTC"**: um sistema distribuído de alto desempenho e custo zero, projetado para mapear e auditar esses setores de vulnerabilidade utilizando recursos efêmeros de nuvem.
 
 ### 🎯 A Hipótese Central
 > *"A barreira de entrada para auditar a resiliência da rede Bitcoin é drasticamente menor do que a teoria dita, se utilizarmos a computação oportunista para atacar falhas humanas em vez da matemática pura."*
