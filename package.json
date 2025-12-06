@@ -1,12 +1,14 @@
 {
-  "name": "@prospector/source",
+  "name": "@prospector-btc/source",
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {},
   "private": true,
-  "dependencies": {},
   "devDependencies": {
+    "@monodon/rust": "^2.3.0",
     "@nx/js": "22.1.3",
+    "@nx/next": "^22.1.3",
+    "@nx/react": "^22.1.3",
     "@nx/workspace": "22.1.3",
     "nx": "22.1.3"
   },

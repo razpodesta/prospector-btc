@@ -1,0 +1,15 @@
+[package]
+name = "prospector-core-bloom"
+version = "0.1.0"
+edition = "2021"
+authors = ["Raz Podesta <metaShark Tech>"]
+
+[dependencies]
+bloomfilter = { workspace = true, features = ["serde"] }
+serde = { workspace = true }
+bincode = { workspace = true }
+thiserror = { workspace = true }
+
+[lib]
+name = "prospector_core_bloom"
+path = "src/lib.rs"

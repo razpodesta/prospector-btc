@@ -1,1 +1,7 @@
 autoInstallPeers: true
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - esbuild
+  - nx
+  - sharp

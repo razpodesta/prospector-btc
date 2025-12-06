@@ -1,0 +1,20 @@
+[package]
+name = "prospector-core-math"
+version = "0.1.0"
+edition = "2021"
+authors = ["Raz Podesta <metaShark Tech>"]
+description = "Motor matemático de bajo nivel para operaciones de curva elíptica secp256k1."
+
+[dependencies]
+secp256k1 = { workspace = true }
+sha2 = "0.10"
+ripemd = "0.1"
+thiserror = { workspace = true }
+hex = { workspace = true }
+
+[dev-dependencies]
+rand = "0.8"
+
+[lib]
+name = "prospector_core_math"
+path = "src/lib.rs"

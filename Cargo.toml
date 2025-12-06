@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "libs/core/math-engine",
+    "libs/core/generators",
+    "libs/core/probabilistic",
+    "libs/domain/models-rs",
+    "libs/domain/mining-strategy", 
+]
+
+[profile.release]
+lto = true
+
