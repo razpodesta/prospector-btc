@@ -1,4 +1,4 @@
-// libs/infra/transport/src/lib.rs
+
 use bincode::{Options, DefaultOptions};
 use serde::{Serialize, Deserialize};
 use thiserror::Error;

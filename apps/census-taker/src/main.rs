@@ -1,4 +1,4 @@
-# apps/census-taker/src/main.rs
+
 // =================================================================
 // APARATO: CENSUS TAKER (ETL)
 // ESTÁNDARES: CLI PROFESIONAL, STREAMING

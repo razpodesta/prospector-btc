@@ -1,4 +1,4 @@
-# apps/orchestrator/src/state.rs
+
 // =================================================================
 // APARATO: ORCHESTRATOR STATE
 // RESPONSABILIDAD: MEMORIA VOLÁTIL DEL ENJAMBRE

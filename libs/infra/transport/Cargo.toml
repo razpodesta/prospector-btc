@@ -1,4 +1,4 @@
-# libs/infra/transport/Cargo.toml
+
 [package]
 name = "prospector-infra-transport"
 version = "0.1.0"

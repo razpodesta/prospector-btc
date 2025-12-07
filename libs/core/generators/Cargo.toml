@@ -1,4 +1,4 @@
-# libs/core/generators/Cargo.toml
+
 [package]
 name = "prospector-core-gen"
 version = "0.1.0"

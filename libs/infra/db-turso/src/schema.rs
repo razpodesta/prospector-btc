@@ -1,4 +1,4 @@
-// libs/infra/db-turso/src/schema.rs
+
 
 pub const INITIAL_SCHEMA: &str = r#"
 -- Tabla de Hallazgos (El Tesoro)

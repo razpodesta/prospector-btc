@@ -1,4 +1,3 @@
-# libs/core/math-engine/src/errors.rs
 use thiserror::Error;
 
 /// Errores posibles dentro del motor matemático.

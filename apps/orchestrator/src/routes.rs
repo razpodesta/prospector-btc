@@ -1,4 +1,4 @@
-# apps/orchestrator/src/routes.rs
+
 use axum::{
     routing::{get, post},
     Router,

@@ -1,4 +1,4 @@
-# libs/core/generators/src/lib.rs
+
 // =================================================================
 // APARATO: CORE GENERATORS
 // ESTÁNDARES: RUST 2021, STRICT LINTING

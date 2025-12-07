@@ -1,6 +1,5 @@
-# libs/domain/mining-strategy/Cargo.toml
 [package]
-name = "prospector-strategy"
+name = "prospector-domain-strategy"
 version = "0.1.0"
 edition = "2021"
 
@@ -13,8 +12,8 @@ prospector-domain-models = { path = "../models-rs" }
 # Dependencias Externas
 log = "0.4"
 rand = "0.8"
-sha2 = "0.10" # Para hashear frases brainwallet
+sha2 = "0.10"
 
 [lib]
-name = "prospector_strategy"
+name = "prospector_domain_strategy"
 path = "src/lib.rs"

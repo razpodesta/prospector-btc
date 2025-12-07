@@ -1,4 +1,4 @@
-# libs/core/probabilistic/src/lib.rs
+
 // =================================================================
 // APARATO: CORE PROBABILISTIC
 // ESTÁNDARES: RUST 2021, SERIALIZACIÓN BINARIA

@@ -1,4 +1,4 @@
-// libs/domain/mining-strategy/src/lib.rs
+
 // =================================================================
 // APARATO: MINING STRATEGY
 // MISION: Generación de candidatos de alta velocidad

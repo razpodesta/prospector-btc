@@ -1,4 +1,4 @@
-# libs/core/generators/src/errors.rs
+
 use thiserror::Error;
 
 #[derive(Error, Debug)]

@@ -1,4 +1,4 @@
-// libs/domain/models-rs/src/worker.rs
+
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use chrono::{DateTime, Utc};

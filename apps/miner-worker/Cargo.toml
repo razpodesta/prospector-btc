@@ -18,19 +18,20 @@ prospector-domain-strategy = { path = "../../libs/domain/mining-strategy" }
 prospector-infra-transport = { path = "../../libs/infra/transport" }
 
 # PARALELISMO & UTILS
-rayon = "1.8"       # <-- LA MAGIA DEL MULTI-CORE
-tokio = { version = "1.0", features = ["full"] } # Runtime Async
-clap = { version = "4.4", features = ["derive"] } # CLI Args
+rayon = "1.8"
+tokio = { version = "1.0", features = ["full"] }
+clap = { version = "4.4", features = ["derive", "env"] }
 uuid = { version = "1.0", features = ["v4"] }
 anyhow = "1.0"
 log = "0.4"
 env_logger = "0.10"
+ctrlc = "3.4" # <-- AGREGADO: Para Graceful Shutdown
 
 # CLIENTE HTTP
 reqwest = { version = "0.11", default-features = false, features = ["json", "rustls-tls"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
-[bin]
+[[bin]]
 name = "miner-worker"
 path = "src/main.rs"

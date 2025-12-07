@@ -1,4 +1,4 @@
-# libs/core/generators/src/wif.rs
+// libs/core/generators/src/wif.rs
 use prospector_core_math::private_key::SafePrivateKey;
 use bs58;
 
@@ -12,7 +12,8 @@ const MAINNET_PRIVATE_KEY_PREFIX: u8 = 0x80;
 /// * Byte 34 (Opcional): 0x01 si corresponde a una PubKey comprimida.
 /// * Checksum: 4 bytes finales.
 pub fn private_to_wif(secret: &SafePrivateKey, compressed: bool) -> String {
-    let secret_bytes = secret.as_inner().secret_bytes();
+    // CORRECCIÓN: Usamos el método público to_bytes()
+    let secret_bytes = secret.to_bytes();
 
     let mut payload = Vec::with_capacity(34);
     payload.push(MAINNET_PRIVATE_KEY_PREFIX);

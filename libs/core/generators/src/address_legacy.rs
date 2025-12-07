@@ -1,4 +1,4 @@
-// libs/core/generators/src/address_legacy.rs
+
 use prospector_core_math::hashing::hash160;
 use prospector_core_math::public_key::SafePublicKey;
 use bs58;

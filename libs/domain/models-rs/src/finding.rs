@@ -1,4 +1,4 @@
-// libs/domain/models-rs/src/finding.rs
+
 use serde::{Serialize, Deserialize};
 
 /// El "Santo Grial". Estructura que se reporta cuando hay una colisión.

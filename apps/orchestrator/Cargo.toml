@@ -1,7 +1,8 @@
-# apps/orchestrator/Cargo.toml
+
 # =================================================================
 # APARATO: ORCHESTRATOR MANIFEST
 # CLASIFICACIÓN: ELITE / PRODUCTION READY
+# ESTADO: REFACTORIZADO (FIXED)
 # =================================================================
 
 [package]
@@ -19,6 +20,8 @@ publish = false # Evita publicación accidental en crates.io (Soberanía)
 prospector-domain-models = { path = "../../libs/domain/models-rs" }
 # Capa de Persistencia (Conector a Turso/libSQL)
 prospector-infra-db = { path = "../../libs/infra/db-turso" }
+# Sistema de Observabilidad Unificado (Heimdall)
+prospector-shared-heimdall = { path = "../../libs/shared/heimdall-rs" }
 
 # -----------------------------------------------------------------
 # 2. MOTOR ASÍNCRONO & WEB SERVER
@@ -65,12 +68,9 @@ chrono = { version = "0.4", features = ["serde"] }
 # Gestión de Configuración (DX Local)
 dotenvy = "0.15"
 
-[bin]
+# -----------------------------------------------------------------
+# 7. DEFINICIÓN DEL BINARIO (CORRECCIÓN CRÍTICA)
+# -----------------------------------------------------------------
+[[bin]]
 name = "orchestrator"
 path = "src/main.rs"
-
-# Optimización para release: Menor tamaño, mayor velocidad
-[profile.release]
-lto = true
-codegen-units = 1
-strip = true

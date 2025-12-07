@@ -3,6 +3,7 @@ use crate::TursoClient;
 use crate::errors::DbError;
 use prospector_domain_models::work::{WorkOrder, SearchStrategy};
 use uuid::Uuid;
+use libsql::params;
 
 pub struct JobRepository {
     client: TursoClient,
@@ -13,50 +14,56 @@ impl JobRepository {
         Self { client }
     }
 
-    /// Asigna un nuevo rango de trabajo de forma atómica.
-    /// Devuelve un WorkOrder con un rango exclusivo de 10 Millones de claves.
+    /// Asigna rango usando Optimistic Concurrency Control (OCC).
     pub async fn assign_next_range(&self) -> Result<WorkOrder, DbError> {
         let conn = self.client.get_connection()?;
-
-        // TAMAÑO DEL BLOQUE DE TRABAJO (Chunk Size)
-        // 10,000,000 iteraciones toman unos 20-60 segundos en una GPU T4.
         const CHUNK_SIZE: u64 = 10_000_000;
         const CATEGORY: &str = "combinatoric_v1";
 
-        // NOTA: libSQL sobre HTTP no soporta transacciones interactivas complejas igual que local.
-        // Usamos una estrategia de "UPDATE RETURNING" emulada para atomicidad.
+        // BUCLE DE REINTENTO OPTIMISTA (Max 5 intentos)
+        for _ in 0..5 {
+            // 1. Leer estado actual
+            let mut rows = conn.query(
+                "SELECT last_index FROM range_cursor WHERE category = ?1",
+                params![CATEGORY]
+            ).await?;
 
-        // 1. Obtener índice actual y actualizarlo en un solo paso (si es posible)
-        // Como SQLite/libSQL a veces limita esto, hacemos Read-Update con Optimistic Locking implícito
-        // En un entorno de altísima concurrencia, esto debería ser un Stored Proc o usar bloqueo,
-        // pero para 300 nodos, la latencia HTTP actúa como buffer natural.
+            let current_last: u64 = if let Some(row) = rows.next().await? {
+                row.get(0)?
+            } else {
+                // Auto-seed inicial si la tabla está vacía
+                conn.execute(
+                    "INSERT OR IGNORE INTO range_cursor (category, last_index) VALUES (?1, 0)",
+                    params![CATEGORY]
+                ).await?;
+                0
+            };
 
-        let mut rows = conn.query("SELECT last_index FROM range_cursor WHERE category = ?1", [CATEGORY])
-            .await?;
+            let new_last = current_last + CHUNK_SIZE;
 
-        let start_index: u64 = if let Some(row) = rows.next().await? {
-            row.get(0)?
-        } else {
-            0
-        };
+            // 2. Actualización Atómica Condicional
+            // "Actualiza SOLO SI el valor en DB sigue siendo el que leí hace un milisegundo"
+            let changed = conn.execute(
+                "UPDATE range_cursor SET last_index = ?1 WHERE category = ?2 AND last_index = ?3",
+                params![new_last, CATEGORY, current_last]
+            ).await?;
 
-        let end_index = start_index + CHUNK_SIZE;
+            if changed > 0 {
+                // ✅ Éxito: Ganamos la carrera y reservamos el rango [current_last, new_last)
+                return Ok(WorkOrder {
+                    id: Uuid::new_v4(),
+                    target_duration_sec: 60,
+                    strategy: SearchStrategy::Combinatoric {
+                        prefix: "".to_string(),
+                        suffix: "".to_string(),
+                        start_index: current_last,
+                        end_index: new_last,
+                    },
+                });
+            }
+            // ❌ Fallo: Alguien más actualizó. El bucle se repite y lee el nuevo valor.
+        }
 
-        // 2. Actualizar el cursor
-        conn.execute("UPDATE range_cursor SET last_index = ?1 WHERE category = ?2",
-            (end_index, CATEGORY)
-        ).await?;
-
-        // 3. Construir la Orden
-        Ok(WorkOrder {
-            id: Uuid::new_v4(),
-            target_duration_sec: 60,
-            strategy: SearchStrategy::Combinatoric {
-                prefix: "".to_string(), // Sin prefijo por ahora
-                suffix: "".to_string(),
-                start_index,
-                end_index,
-            },
-        })
+        Err(DbError::TransactionError) // Alta contención (demasiados workers a la vez)
     }
 }

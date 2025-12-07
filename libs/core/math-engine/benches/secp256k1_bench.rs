@@ -1,4 +1,4 @@
-// libs/core/math-engine/benches/secp256k1_bench.rs
+
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use prospector_core_math::private_key::SafePrivateKey;
 use prospector_core_math::public_key::SafePublicKey;

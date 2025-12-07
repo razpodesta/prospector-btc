@@ -7,21 +7,25 @@ use crate::schema::INITIAL_SCHEMA;
 #[derive(Clone)]
 pub struct TursoClient {
     db: Arc<Database>,
-    // En libSQL remoto (HTTP), la conexión se gestiona internamente,
-    // pero mantenemos la referencia a la DB para generar conexiones bajo demanda.
 }
 
 impl TursoClient {
     /// Conecta a la base de datos (Archivo local o Turso Remoto).
     pub async fn connect(url: &str, token: Option<String>) -> Result<Self, DbError> {
-        let mut builder = Builder::new_local(url);
-
-        // Si hay token, asumimos conexión remota/sincronizada
-        if let Some(t) = token {
-            builder = Builder::new_remote(url.to_string(), t);
-        }
-
-        let db = builder.build().await.map_err(|e| DbError::ConnectionError(e.to_string()))?;
+        // CORRECCIÓN: Construimos la DB dentro de las ramas para unificar el tipo de retorno
+        let db = if let Some(t) = token {
+            // Rama Remota
+            Builder::new_remote(url.to_string(), t)
+                .build()
+                .await
+                .map_err(|e| DbError::ConnectionError(e.to_string()))?
+        } else {
+            // Rama Local
+            Builder::new_local(url)
+                .build()
+                .await
+                .map_err(|e| DbError::ConnectionError(e.to_string()))?
+        };
 
         // Inicializar esquema (Migración "Poor Man's")
         let conn = db.connect().map_err(|e| DbError::ConnectionError(e.to_string()))?;

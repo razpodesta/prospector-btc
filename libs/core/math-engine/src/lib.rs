@@ -1,4 +1,4 @@
-// libs/core/math-engine/src/lib.rs
+
 // =================================================================
 // PROSPECTOR SYSTEM // APARATO: CORE MATH ENGINE
 // CLASIFICACIÓN: HIGH-PERFORMANCE COMPUTING (HPC)

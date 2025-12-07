@@ -1,4 +1,4 @@
-// libs/domain/models-rs/src/work.rs
+
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 

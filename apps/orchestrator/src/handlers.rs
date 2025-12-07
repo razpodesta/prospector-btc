@@ -1,10 +1,6 @@
 // apps/orchestrator/src/handlers.rs
-// =================================================================
-// APARATO: ORCHESTRATOR HANDLERS (LOGIC)
-// =================================================================
-
 use axum::{extract::{State, Json}, http::StatusCode, response::IntoResponse};
-use prospector_domain_models::{worker::WorkerHeartbeat, finding::Finding, work::WorkOrder};
+use prospector_domain_models::{worker::WorkerHeartbeat, finding::Finding}; // <-- WorkOrder eliminado (se infiere)
 use prospector_infra_db::repositories::{FindingRepository, JobRepository};
 use tracing::{info, warn, error};
 use crate::state::AppState;
@@ -17,7 +13,6 @@ pub async fn receive_heartbeat(
     StatusCode::OK
 }
 
-/// Asigna trabajo REAL usando control de concurrencia en DB.
 pub async fn assign_job(
     State(state): State<AppState>,
 ) -> impl IntoResponse {
@@ -25,12 +20,8 @@ pub async fn assign_job(
 
     match repo.assign_next_range().await {
         Ok(work_order) => {
-            info!("💼 Trabajo asignado: ID {} (Rango {} -> {})",
-                work_order.id,
-                // Extraer info de log es complejo con Enums, simplificamos log
-                "Combinatoric", "..."
-            );
-            // Devolvemos JSON directo. Axum infiere el Content-Type.
+            info!("💼 Trabajo asignado: ID {}", work_order.id);
+            // Rust infiere que esto es un WorkOrder, no necesitamos importarlo explícitamente
             Json(work_order).into_response()
         },
         Err(e) => {

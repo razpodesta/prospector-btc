@@ -1,4 +1,4 @@
-# libs/infra/db-turso/Cargo.toml
+
 [package]
 name = "prospector-infra-db"
 version = "0.1.0"

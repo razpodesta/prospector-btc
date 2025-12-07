@@ -1,4 +1,4 @@
-# apps/orchestrator/Dockerfile
+
 # =================================================================
 # APARATO: DOCKER BUILDER (ZERO-COST STRATEGY)
 # MISIÓN: Compilar código + Inyectar Filtro UTXO externo

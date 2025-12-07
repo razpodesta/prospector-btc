@@ -1,13 +1,9 @@
-# libs/domain/mining-strategy/src/brainwallet.rs
+// libs/domain/mining-strategy/src/brainwallet.rs
 use prospector_core_math::private_key::SafePrivateKey;
-use prospector_core_math::hashing::double_sha256; // O sha256 simple según el caso
+// use prospector_core_math::hashing::double_sha256; // <-- ELIMINADO PORQUE NO SE USA
 use sha2::{Sha256, Digest};
 
 /// Convierte una frase de texto (passphrase) en una Clave Privada.
-///
-/// # Vulnerabilidad Histórica
-/// Muchos usuarios usaron `SHA256("texto")` directamente como clave privada.
-/// Esta función replica ese error humano.
 pub fn phrase_to_private_key(phrase: &str) -> SafePrivateKey {
     // 1. Hashear la frase
     let mut hasher = Sha256::new();
@@ -15,13 +11,9 @@ pub fn phrase_to_private_key(phrase: &str) -> SafePrivateKey {
     let result = hasher.finalize();
 
     // 2. Convertir bytes a Clave Privada Segura
-    // SafePrivateKey maneja internamente la verificación de curva válida.
-    // En el rarísimo caso de que el hash no sea un escalar válido,
-    // podríamos paniquear o retornar Result (simplificado aquí para la demo).
     SafePrivateKey::from_bytes(&result).expect("Hash SHA256 inválido para curva secp256k1")
 }
 
-/// Un iterador que toma una lista de palabras y genera claves candidatas.
 pub struct BrainwalletIterator<'a> {
     dictionary: &'a [String],
     index: usize,

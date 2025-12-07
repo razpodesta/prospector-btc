@@ -1,4 +1,4 @@
-# apps/orchestrator/src/middleware.rs
+
 // =================================================================
 // APARATO: ORCHESTRATOR MIDDLEWARE
 // RESPONSABILIDAD: SEGURIDAD PERIMETRAL (AUTH)

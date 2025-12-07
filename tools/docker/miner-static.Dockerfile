@@ -1,4 +1,4 @@
-# tools/docker/miner-static.Dockerfile
+
 FROM rust:1.75-slim-bookworm as builder
 
 # Instalar herramientas para compilación cruzada estática (MUSL)
