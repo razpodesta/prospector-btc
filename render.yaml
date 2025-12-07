@@ -1,0 +1,38 @@
+services:
+  # 1. ORQUESTADOR (Backend Rust)
+  - type: web
+    name: prospector-orchestrator
+    runtime: docker
+    dockerfilePath: apps/orchestrator/Dockerfile
+    context: .
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: RUST_LOG
+        value: info
+      # Estas variables DEBEN ser configuradas en el Dashboard de Render manualmente por seguridad
+      - key: DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
+      - key: WORKER_AUTH_TOKEN
+        sync: false
+    healthCheckPath: /api/v1/status
+
+  # 2. DASHBOARD (Frontend Next.js)
+  - type: web
+    name: prospector-dashboard
+    runtime: docker
+    dockerfilePath: apps/web-dashboard/Dockerfile
+    context: .
+    envVars:
+      - key: PORT
+        value: 3000
+      # Apunta automáticamente al servicio interno del orquestador
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: prospector-orchestrator
+          property: url
+    dependsOn:
+      - prospector-orchestrator
