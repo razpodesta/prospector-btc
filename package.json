@@ -34,29 +34,23 @@
     "postinstall": "nx run-many --target=build --all",
     "start": "nx run-many --target=serve --projects=orchestrator,web-dashboard --parallel",
     "clean": "rimraf dist target .nx",
-
     "--- BUILD COMMANDS ---": "--------------------------------",
     "build:all": "nx run-many --target=build --all --prod",
     "build:backend": "nx build orchestrator --prod",
     "build:frontend": "nx build web-dashboard --prod",
     "build:miner": "nx build miner-worker --prod",
-
     "--- DOCKER OPS ---": "--------------------------------",
     "docker:build:orch": "docker build -f apps/orchestrator/Dockerfile -t prospector/orchestrator .",
     "docker:build:web": "docker build -f apps/web-dashboard/Dockerfile -t prospector/web-dashboard .",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
-
     "--- TEST SUITE ---": "--------------------------------",
     "test:all": "nx run-many --target=test --all",
     "lint:all": "nx run-many --target=lint --all",
-
-     "lint": "nx run-many --target=lint --all",
+    "lint": "nx run-many --target=lint --all",
     "test": "nx run-many --target=test --all",
-
     "build:orch:docker": "docker build -f apps/orchestrator/Dockerfile -t prospector-orch .",
     "build:web:docker": "docker build -f apps/web-dashboard/Dockerfile -t prospector-web .",
-
     "check:rust": "cargo check",
     "format:rust": "cargo fmt"
   },
@@ -99,6 +93,7 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "tailwind-merge": "^3.4.0",
+    "tslib": "^2.8.1",
     "zod": "^4.1.13",
     "zustand": "^5.0.9"
   },

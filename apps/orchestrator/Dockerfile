@@ -51,7 +51,7 @@ RUN if [ -n "$FILTER_URL" ]; then \
     fi
 
 # 2.4. Copiar Binario
-COPY --from=builder /usr/src/app/target/release/orchestrator /usr/local/bin/orchestrator
+COPY --from=builder /usr/src/app/dist/target/release/orchestrator /usr/local/bin/orchestrator
 
 # 2.5. Configuración
 ENV RUST_LOG=info
