@@ -6,22 +6,36 @@ const { composePlugins, withNx } = require('@nx/next');
  **/
 const nextConfig = {
   nx: {
-    // La propiedad svgr ha sido eliminada en Nx 19+
+    // Svgr eliminado por obsolescencia
   },
-  // ACTIVACIÓN DE MODO DOCKER OPTIMIZADO
   output: 'standalone',
-  // Variables de entorno expuestas al navegador
   env: {
     NEXT_PUBLIC_APP_VERSION: process.env.npm_package_version,
   },
-  // Optimización de imágenes
   images: {
-    unoptimized: true, // Recomendado para contenedores simples sin CDN
-  }
+    unoptimized: true,
+  },
+
+  // 🔥 LA MAGIA DEL PROXY 🔥
+  // Esto permite que el navegador hable con el backend sin saber su URL real
+  async rewrites() {
+    // En producción (Render), usamos la variable interna.
+    // En local, usamos localhost:3000.
+    const apiUrl = process.env.INTERNAL_API_HOST
+      ? `http://${process.env.INTERNAL_API_HOST}`
+      : 'http://localhost:3000';
+
+    console.log(`🔌 Next.js Proxy Tunnel configurado hacia: ${apiUrl}`);
+
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: `${apiUrl}/api/v1/:path*`,
+      },
+    ];
+  },
 };
 
-const plugins = [
-  withNx,
-];
+const plugins = [withNx];
 
 module.exports = composePlugins(...plugins)(nextConfig);

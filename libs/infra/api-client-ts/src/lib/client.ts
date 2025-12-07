@@ -1,8 +1,12 @@
 // libs/infra/api-client-ts/src/lib/client.ts
 import axios from 'axios';
 
-// 1. Configuración dinámica desde el entorno
-const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] || 'http://localhost:3000/api/v1';
+// ESTRATEGIA RELATIVA:
+// Al usar el proxy de Next.js, no necesitamos saber la URL del backend en el cliente.
+// Simplemente llamamos a nuestro propio dominio.
+const BASE_URL = '/api/v1';
+
+// Token opcional (si se inyecta desde el servidor o env)
 const API_TOKEN = process.env['NEXT_PUBLIC_API_TOKEN'] || '';
 
 export const apiClient = axios.create({
@@ -10,10 +14,10 @@ export const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 5000,
+  timeout: 10000, // 10s para dar tiempo al proxy
 });
 
-// 2. Interceptor de Seguridad (Inyección de Credenciales)
+// Interceptor de Seguridad
 apiClient.interceptors.request.use((config) => {
   if (API_TOKEN) {
     config.headers.Authorization = `Bearer ${API_TOKEN}`;
@@ -21,16 +25,15 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// 3. Interceptor de Errores (Logging)
+// Interceptor de Errores
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Evitamos ensuciar la consola en caso de cancelación o error esperado
     if (error.code !== 'ERR_CANCELED') {
-      console.error('🔥 API Error:', {
-        url: error.config?.url,
-        status: error.response?.status,
-        data: error.response?.data
+      // Log discreto para no saturar consola
+      console.warn('API Warning:', {
+        endpoint: error.config?.url,
+        status: error.response?.status
       });
     }
     return Promise.reject(error);

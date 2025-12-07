@@ -1,17 +1,16 @@
 version: "1"
 services:
-  # 1. ORQUESTADOR (Backend Rust)
+  # --- 1. CEREBRO (BACKEND RUST) ---
   - type: web
     name: prospector-orchestrator
     runtime: docker
     dockerfilePath: apps/orchestrator/Dockerfile
-    # Eliminamos 'context' explícito, Render usará la raíz por defecto
     envVars:
       - key: PORT
         value: 3000
       - key: RUST_LOG
         value: info
-      # Estas variables se llenan en el Wizard de Render
+      # Secretos a llenar manualmente en el Dashboard
       - key: DATABASE_URL
         sync: false
       - key: TURSO_AUTH_TOKEN
@@ -21,19 +20,20 @@ services:
     healthCheckPath: /api/v1/status
     plan: free
 
-  # 2. DASHBOARD (Frontend Next.js)
+  # --- 2. CARA (FRONTEND NEXT.JS) ---
   - type: web
     name: prospector-dashboard
     runtime: docker
     dockerfilePath: apps/web-dashboard/Dockerfile
-    # Eliminamos 'context' explícito
     envVars:
       - key: PORT
         value: 3000
-      # Conexión automática de servicios
-      - key: NEXT_PUBLIC_API_URL
+
+      # ESTRATEGIA PROXY: Obtenemos la dirección interna
+      - key: INTERNAL_API_HOST
         fromService:
           type: web
           name: prospector-orchestrator
-          property: url
+          property: hostport  # <-- CORRECCIÓN: Usamos la propiedad válida
+
     plan: free
