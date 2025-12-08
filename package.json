@@ -52,7 +52,11 @@
     "build:orch:docker": "docker build -f apps/orchestrator/Dockerfile -t prospector-orch .",
     "build:web:docker": "docker build -f apps/web-dashboard/Dockerfile -t prospector-web .",
     "check:rust": "cargo check",
-    "format:rust": "cargo fmt"
+    "format:rust": "cargo fmt",
+    "--- FRONTEND OPS ---": "--------------------------------",
+  "lint:web": "nx lint web-dashboard",
+  "typecheck:web": "tsc -p apps/web-dashboard/tsconfig.json --noEmit",
+  "qa:web": "pnpm lint:web && pnpm typecheck:web"
   },
   "devDependencies": {
     "@monodon/rust": "^2.3.0",

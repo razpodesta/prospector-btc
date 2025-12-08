@@ -2,14 +2,22 @@
 name = "prospector-domain-models"
 version = "0.1.0"
 edition = "2021"
+authors = ["Raz Podesta <metaShark Tech>"]
+description = "Definiciones de tipos compartidos (DTOs) y Entidades del Dominio."
 
 [dependencies]
+# SERIALIZACIÓN BASE
 serde = { version = "1.0", features = ["derive"] }
-uuid = { version = "1.0", features = ["v4", "serde"] }
-chrono = { version = "0.4", features = ["serde"] }
 
-# Para compartir tipos con el Frontend (opcional pero recomendado)
-# ts-rs = "7.0"
+# FORMATO JSON (CORRECCIÓN DEL ERROR)
+# Necesario para el tipo 'serde_json::Value' en los payloads de cookies
+serde_json = "1.0"
+
+# IDENTIFICADORES ÚNICOS
+uuid = { version = "1.0", features = ["v4", "serde"] }
+
+# TIEMPO Y FECHA
+chrono = { version = "0.4", features = ["serde"] }
 
 [lib]
 name = "prospector_domain_models"

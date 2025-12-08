@@ -2002,6 +2002,7 @@ dependencies = [
 name = "prospector-domain-forensics"
 version = "0.1.0"
 dependencies = [
+ "byteorder",
  "prospector-core-math",
  "thiserror",
 ]
@@ -2012,6 +2013,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "serde",
+ "serde_json",
  "uuid",
 ]
 

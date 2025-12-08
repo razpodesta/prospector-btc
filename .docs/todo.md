@@ -43,4 +43,22 @@ Scripts de BigQuery: Finalizar el SQL para extraer el "Target List" real de dire
 Refinamiento UI: Agregar gráficas D3.js reales al Dashboard (libs/features/rich-list).
 INSTRUCCIÓN:
 Analiza este estado. No reinicies nada; asume que el código descrito existe y es perfecto. Tu objetivo es continuar con la Ingeniería de Despliegue y Aprovisionamiento.
-Comienza confirmando que has entendido la arquitectura "Fractal Monolith" audita cada aparato del snapshoot y propón el plan detallado, primero de bivelacion de elite, un plan de mejoras detectadas en cada aparato y de atomizacion que detectes en los aparatos, veridfica que los aparatos esten completos sin abreviaiones y corectos de elite en logica e insgraesytructra. Previo a todo lee completamente los documentos desde .docs. 
+Comienza confirmando que has entendido la arquitectura "Fractal Monolith" audita cada aparato del snapshoot y propón el plan detallado, primero de bivelacion de elite, un plan de mejoras detectadas en cada aparato y de atomizacion que detectes en los aparatos, veridfica que los aparatos esten completos sin abreviaiones y corectos de elite en logica e insgraesytructra. Previo a todo lee completamente los documentos desde .docs.
+
+--
+
+
+ACTÚA COMO: Arquitecto de Sistemas Distribuidos (SRE Focus).
+
+CONTEXTO ACTUAL:
+Estamos desplegando "PROSPECTOR BTC" en Render. Hemos corregido un bloqueo crítico en el Dockerfile y un problema de configuración en el Healthcheck que causaba falsos negativos en los logs por autenticación excesiva.
+
+OBJETIVO DE LA SESIÓN:
+Reforzar la resiliencia del sistema y continuar con la fase de Dockerización y Despliegue.
+
+REGLAS DE ORO (AÑADIDAS):
+1. PRINCIPIO DE OBSERVABILIDAD ABIERTA: Los endpoints de salud (/health, /status, /ping) NUNCA deben estar detrás de un middleware de autenticación. Deben ser públicos y ligeros (Liveness Probes).
+2. MANEJO DE ERRORES NO BLOQUEANTE: Si un worker o un proceso falla, debe tener una estrategia de "Backoff Exponencial" (esperar 1s, luego 2s, luego 4s...) en lugar de reintentar inmediatamente en un bucle infinito.
+3. LOGS SILENCIOSOS: Los errores conocidos y esperados (como un ping de healthcheck fallido durante el arranque) no deben inundar los logs como WARN/ERROR.
+--
+
