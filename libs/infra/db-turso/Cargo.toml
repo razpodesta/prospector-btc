@@ -1,0 +1,46 @@
+# libs/infra/db-turso/Cargo.toml
+# =================================================================
+# APARATO: TACTICAL DATABASE MANIFEST (V15.0 - IO ENABLED)
+# CLASIFICACIÓN: INFRASTRUCTURE LAYER (ESTRATO L3)
+# RESPONSABILIDAD: GESTIÓN DE DEPENDENCIAS PARA EL LEDGER TÁCTICO
+# =================================================================
+
+[package]
+name = "prospector-infra-db"
+version = "0.2.2"
+edition = "2021"
+authors = ["Raz Podesta <metaShark Tech>"]
+description = "Adaptador de persistencia para Turso/libSQL con soporte de rangos U256 y gestión de activos."
+
+[dependencies]
+# --- 1. MOTOR DE BASE DE DATOS (libSQL) ---
+libsql = { version = "0.3", features = ["serde"] }
+
+# --- 2. ASYNC RUNTIME & I/O ---
+# ✅ RESOLUCIÓN ERROR E0433: Inyección de Tokio para gestión de archivos de escenarios
+tokio = { version = "1.0", features = ["fs", "io-util"] }
+
+# --- 3. SINAPSIS INTERNA ---
+prospector-core-math = { path = "../../core/math-engine" }
+prospector-domain-models = { path = "../../domain/models-rs" }
+
+# --- 4. SERIALIZACIÓN & DATOS ---
+hex = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# --- 5. GESTIÓN DE ERRORES & TRAZABILIDAD ---
+thiserror = "1.0"
+anyhow = "1.0"
+tracing = "0.1"
+
+# --- 6. UTILIDADES DE SISTEMA ---
+uuid = { version = "1.0", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+num-bigint = "0.4"
+num-traits = "0.2"
+sha2 = "0.10"
+
+[lib]
+name = "prospector_infra_db"
+path = "src/lib.rs"

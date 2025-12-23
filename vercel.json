@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "pnpm build:web",
+  "outputDirectory": "dist/apps/web-dashboard/.next",
+  "ignoreCommand": "bash -c '[ \"$VERCEL_GIT_COMMIT_REF\" == \"main\" ] && exit 1 || exit 0'",
+  "installCommand": "pnpm install --frozen-lockfile --aggregate-output"
+}

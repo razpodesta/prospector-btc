@@ -1,0 +1,50 @@
+# apps/orchestrator/Cargo.toml
+# =================================================================
+# APARATO: COMMAND & CONTROL MANIFEST (V12.0 - FULLY SYNCED)
+# =================================================================
+
+[package]
+name = "prospector-orchestrator"
+version = "0.3.0"
+edition = "2021"
+
+[dependencies]
+# --- SINAPSIS INTERNA ---
+prospector-domain-models = { path = "../../libs/domain/models-rs" }
+prospector-infra-db = { path = "../../libs/infra/db-turso" }
+prospector-shared-heimdall = { path = "../../libs/shared/heimdall" }
+prospector-core-math = { path = "../../libs/core/math-engine" }
+prospector-core-gen = { path = "../../libs/core/generators" }
+prospector-domain-strategy = { path = "../../libs/domain/mining-strategy" }
+
+# --- WEB & ASYNC KERNEL ---
+axum = { version = "0.7", features = ["macros"] }
+tokio = { version = "1.0", features = ["full"] }
+tower = { version = "0.4", features = ["util", "limit", "buffer"] }
+tower-http = { version = "0.5", features = ["cors", "trace", "fs", "limit", "compression-full"] }
+reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
+futures = "0.3"
+tokio-stream = { version = "0.1", features = ["sync"] }
+
+# --- ESTRATO DE DATOS Y SERIALIZACIÓN ---
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+base64 = "0.21"
+sha2 = "0.10"
+rmp-serde = "1.1"
+
+# --- OBSERVABILIDAD Y ENTORNO ---
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt"] }
+anyhow = "1.0"
+dotenvy = "0.15"
+
+[lib]
+name = "prospector_orchestrator"
+path = "src/lib.rs"
+
+[[bin]]
+name = "orchestrator"
+path = "src/main.rs"

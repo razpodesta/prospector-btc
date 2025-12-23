@@ -1,0 +1,62 @@
+[workspace]
+resolver = "2"
+
+# =================================================================
+# APARATO: RUST WORKSPACE MEMBERS (GOLD MASTER SYNC)
+# RESPONSABILIDAD: ORQUESTACIÓN DE LA COMPILACIÓN MONOREPO
+# =================================================================
+
+members = [
+    # --- APLICACIONES ---
+    "apps/census-taker",
+    "apps/miner-worker",
+    "apps/orchestrator",
+    "apps/prover",
+
+    # --- LIBRERÍAS CORE (ESTRATO L1) ---
+    "libs/core/math-engine",
+    "libs/core/generators",
+    "libs/core/probabilistic",
+    "libs/core/client-vault-rs", # ✅ MANIFIESTO AHORA EXISTENTE
+
+    # --- LIBRERÍAS DOMINIO (ESTRATO L2) ---
+    "libs/domain/models-rs",
+    "libs/domain/mining-strategy",
+    "libs/domain/forensics",
+
+    # --- LIBRERÍAS INFRAESTRUCTURA (ESTRATO L3) ---
+    "libs/infra/db-turso",
+    "libs/infra/transport",
+    "libs/infra/worker-client",
+    "libs/infra/blockchain-client",
+
+    # --- LIBRERÍAS COMPARTIDAS ---
+    "libs/shared/heimdall"
+]
+
+exclude = [
+    "apps/web-dashboard",
+    "libs/core/client-vault",
+    "libs/domain/api-contracts",
+    "libs/features/telemetry-ui",
+    "libs/infra/api-client-ts",
+    "libs/infra/supabase",
+    "libs/shared/heimdall-ts"
+]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[workspace.dependencies]
+prospector-core-math = { path = "libs/core/math-engine" }
+prospector-domain-models = { path = "libs/domain/models-rs" }
+prospector-infra-db = { path = "libs/infra/db-turso" }
+prospector-shared-heimdall = { path = "libs/shared/heimdall" }

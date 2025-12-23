@@ -1,0 +1,35 @@
+[package]
+name = "prospector-core-math"
+version = "0.2.2"
+edition = "2021"
+authors = ["Raz Podesta <metaShark Tech>"]
+description = "Motor matemático de bajo nivel para operaciones de curva elíptica secp256k1 optimizado."
+
+[dependencies]
+# --- NÚCLEO CRIPTOGRÁFICO ---
+secp256k1 = { version = "0.27", features = ["recovery", "rand", "global-context"] }
+sha2 = "0.10"
+ripemd = "0.1"
+
+# --- UTILIDADES DE SISTEMA ---
+thiserror = "1.0"
+hex = "0.4"
+once_cell = "1.18"
+rand = "0.8"
+rayon = "1.8"
+
+[dev-dependencies]
+# --- ARMAMENTO DE PRUEBAS Y BENCHMARKING ---
+# Habilitan el Fuzzing, la Aritmética de Referencia y la Medición de Performance.
+criterion = "0.5"
+proptest = "1.4"
+num-bigint = "0.4"
+num-traits = "0.2"
+
+[[bench]]
+name = "secp256k1_bench"
+harness = false
+
+[lib]
+name = "prospector_core_math"
+path = "src/lib.rs"

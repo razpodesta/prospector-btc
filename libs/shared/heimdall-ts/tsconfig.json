@@ -1,0 +1,24 @@
+/**
+ * =================================================================
+ * APARATO: HEIMDALL LOGGING CONFIG (V15.0 - COMPOSITE ALIGNED)
+ * CLASIFICACIÓN: SHARED UTILITY CONFIG (L1)
+ * =================================================================
+ */
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "es2020",
+    "lib": ["es2020"],
+    "strict": true,
+    "composite": true,         // RESOLUCIÓN ERROR 2
+    "declaration": true,
+    "declarationMap": true,
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": "../../../dist/out-tsc/libs/shared/heimdall-ts",
+    "tsBuildInfoFile": "../../../dist/out-tsc/libs/shared/heimdall-ts.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["jest.config.ts", "**/*.spec.ts"]
+}

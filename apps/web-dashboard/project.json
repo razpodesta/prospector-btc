@@ -1,0 +1,23 @@
+{
+  "name": "web-dashboard",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/web-dashboard",
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/web-dashboard"
+      }
+    },
+    "type-check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p apps/web-dashboard/tsconfig.json --noEmit"
+      }
+    }
+  },
+  "tags": ["type:app-web", "layer:app"]
+}

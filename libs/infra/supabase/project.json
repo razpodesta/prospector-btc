@@ -1,0 +1,32 @@
+{
+  "name": "infra-supabase",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/infra/supabase/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/infra/supabase",
+        "main": "libs/infra/supabase/src/index.ts",
+        "tsConfig": "libs/infra/supabase/tsconfig.lib.json"
+      },
+      "dependsOn": ["^build"]
+    },
+    "type-check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p libs/infra/supabase/tsconfig.lib.json --noEmit"
+      },
+      "dependsOn": ["api-contracts:build"]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/infra/supabase/**/*.ts"]
+      }
+    }
+  },
+  "tags": ["layer:infra", "type:db"]
+}

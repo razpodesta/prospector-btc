@@ -1,0 +1,44 @@
+
+[package]
+name = "prospector-domain-strategy"
+version = "0.2.8"
+edition = "2021"
+authors = ["Raz Podesta <metaShark Tech>"]
+
+[dependencies]
+# --- SINAPSIS INTERNA ---
+prospector-core-math = { path = "../../core/math-engine" }
+prospector-core-gen = { path = "../../core/generators" }
+prospector-core-probabilistic = { path = "../../core/probabilistic" }
+prospector-domain-models = { path = "../models-rs" }
+prospector-domain-forensics = { path = "../forensics" }
+# ✅ NIVELACIÓN: Acceso al Uplink de red
+prospector-blockchain-client = { path = "../../infra/blockchain-client" }
+
+# --- COMPUTACIÓN ASÍNCRONA ---
+# ✅ RESOLUCIÓN E0433: Habilita join_all y manejo de Futures
+futures = "0.3"
+tokio = { version = "1.0", features = ["full"] }
+
+# --- SERIALIZACIÓN & UTILIDADES ---
+rayon = "1.8"
+hex = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+sha1 = "0.10"
+rand = "0.8"
+chrono = { version = "0.4", features = ["serde"] }
+bs58 = { version = "0.5", features = ["check"] }
+thiserror = "1.0"
+anyhow = "1.0"
+tracing = "0.1"
+
+[dev-dependencies]
+proptest = "1.4"
+num-bigint = "0.4"
+num-traits = "0.2"
+
+[lib]
+name = "prospector_domain_strategy"
+path = "src/lib.rs"
